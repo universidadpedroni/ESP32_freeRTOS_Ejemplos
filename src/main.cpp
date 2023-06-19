@@ -4,13 +4,31 @@
 
 #include "simpleTasks.h"
 
+// OTA y WiFi
+#include "wifiFunctions.h"
+IPAddress LOCAL_AP_ADD(192,168,5,1);
+IPAddress GATEWAY(192,168,5,1);
+IPAddress SUBNET(255,255,255,0);
+
 simpleTasks simpleT;
 static TaskHandle_t receiverHandler = NULL;
 bool LedState = false;
 
+wifiFunc myWifiFunctions;
+const char* htmlPath = "/index.html";
+const char* cssPath = "/style.css";
+
 const int SENDER_1 = 10;
 const int SENDER_2 = 20;
 
+void wifiInit(){
+  myWifiFunctions.setIPConfig(LOCAL_AP_ADD, GATEWAY, SUBNET);
+  myWifiFunctions.begin("mi ESP", NULL, htmlPath, cssPath);
+  //myWifiFunctions.loadHTMLFile(htmlPath);
+  //myWifiFunctions.loadCSSFile(cssPath);
+  myWifiFunctions.OverTheAirUpdate();
+
+}
 
 void sender1(void * param){
   while(true){
@@ -45,14 +63,14 @@ void receiver(void *param){
 
 void task1(void *params){
   while(true){
-    simpleT.task1(rand());
+    simpleT.task1((int)random(10));
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 
 }
 void task2(void *params){
   while(true){
-    simpleT.task2(rand());
+    simpleT.task2((int)random(10));
     vTaskDelay(pdMS_TO_TICKS(4000));
   }
 
@@ -69,6 +87,7 @@ void setup() {
   xTaskCreatePinnedToCore(receiver, "Receptor", 2048, NULL, 2, &receiverHandler, 0);
   xTaskCreatePinnedToCore(sender1, "Enviador", 2048, NULL, 1, NULL, 0);
   xTaskCreatePinnedToCore(sender2, "Enviador", 2048, NULL, 1, NULL, 1);
+  wifiInit();
 
 }
 
