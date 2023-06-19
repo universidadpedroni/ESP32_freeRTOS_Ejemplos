@@ -44,9 +44,12 @@ void wifiFunc::begin(const char* ssid, const char* password, const char* htmlPat
   else{
     server.on("/", HTTP_GET, [htmlPath](AsyncWebServerRequest *request){
     request->send(SPIFFS, htmlPath, "text/html");
-  });
-  server.serveStatic("/", SPIFFS, cssPath);
-
+    });
+    //Ruta a style.css
+    server.on("/style.css", HTTP_GET, [cssPath](AsyncWebServerRequest * request){
+    request->send(SPIFFS, cssPath,"text/css");
+    });
+    
   }
     
   server.begin();
